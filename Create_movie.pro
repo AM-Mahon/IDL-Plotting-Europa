@@ -210,6 +210,39 @@ pro Create_movie
     endelse
 
   endfor
+
+  ;TEMPERATURE HYDROGEN
+
+  Read_scalar_3d, dir, 'c.temp_h_3d_8', 1, temp_h_3d
+  max_t = max(temp_h_3d[*,*,ceil(nz/2.0)])
+  min_t = min(temp_h_3d[*,*,ceil(nz/2.0)])
+  for i = 2, num_frame do begin
+    Read_scalar_3d, dir, 'c.temp_p_3d_8', i, temp_h_3d
+    step_max = max(temp_h_3d[*,*,ceil(nz/2.0)])
+    step_min = min(temp_h_3d[*,*,ceil(nz/2.0)])
+    if(step_max gt max_t) then begin
+      max_t = step_max
+    endif
+    if(step_min lt min_t) then begin
+      min_t = step_min
+    endif
+  endfor
+
+  for i = 1,num_frame do begin
+    Read_scalar_3d, dir, 'c.temp_p_3d_8', i, temp_h_3d
+
+    temp_h_2d = temp_h_3d[*,*,ceil(nz/2.0)]
+    c_temp = contour(temp_h_2d, /fill, RGB_TABLE=ct, aspect_ratio=1.0, /buffer, MAX_VALUE=max_t, MIN_VALUE=min_t)
+    cb_temp = colorbar(target=c_temp, orientation=1, title='temp')
+    if(i eq 1) then begin
+      c_temp.save, 'temph.gif'
+    endif else if(i lt num_frame) then begin
+      c_temp.save, 'temph.gif', /APPEND
+    endif else begin
+      c_temp.save, 'temph.gif', /APPEND, /CLOSE
+    endelse
+
+  endfor
   
   
   print, "done"
